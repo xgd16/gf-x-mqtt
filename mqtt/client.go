@@ -34,7 +34,7 @@ func (t *Client) Run() {
 			fmt.Printf("MSG: %s\n", msg.Payload())
 		}
 
-		t.MessageCallbackFunc(client, msg)
+		t.MessageCallbackFunc(t, client, msg)
 	})
 	opts.SetOnConnectHandler(t.OnConnectCallBackFunc)
 	opts.SetPingTimeout(1 * time.Second)

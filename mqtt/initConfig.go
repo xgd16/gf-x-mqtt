@@ -6,13 +6,15 @@ import (
 	"github.com/gogf/gf/v2/os/gctx"
 )
 
+type MessageHandler func(*Client, mqtt.Client, mqtt.Message)
+
 type Client struct {
 	// Cfg 配置
 	Cfg *Config
 	// Client 客户端
 	Client *mqtt.Client
 	// MessageCallbackFunc 接收到消息时触发函数
-	MessageCallbackFunc mqtt.MessageHandler
+	MessageCallbackFunc MessageHandler
 	// OnConnectCallBackFunc 连接成功时触发函数
 	OnConnectCallBackFunc mqtt.OnConnectHandler
 }
@@ -62,7 +64,7 @@ func initConfig() *Config {
 }
 
 // SetMessageCallbackFunc 接收到消息时触发函数
-func (t *Client) SetMessageCallbackFunc(fn mqtt.MessageHandler) *Client {
+func (t *Client) SetMessageCallbackFunc(fn MessageHandler) *Client {
 	t.MessageCallbackFunc = fn
 
 	return t
