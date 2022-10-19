@@ -1,0 +1,7 @@
+[mqtt]
+    debug = false
+    url = "tcp://192.168.0.220:1883"
+    clientId = "sdt_service_client"
+    subscribe = "sdt/#"
+    topic = "sdt/1"
+    qos = 0

@@ -54,20 +54,9 @@ func (t *Client) Run() {
 	t.Client = &c
 	// 维持运行
 	select {}
-	//// 发布消息
-	//token := c.Publish("testtopic/1", 0, false, "Hello World")
-	//token.Wait(
-	//
-	//time.Sleep(200 * time.Second)
-	//
-	//// 取消订阅
-	//if token := c.Unsubscribe("testtopic/#"); token.Wait() && token.Error() != nil {
-	//	fmt.Println(token.Error())
-	//	os.Exit(1)
-	//}
 }
 
-func (t *Client) SendMsg(msg string) {
+func (t *Client) SendMsg(msg any) {
 	token := (*t.Client).Publish(t.Cfg.Topic, t.Cfg.Qos, false, msg)
 	token.Wait()
 }
