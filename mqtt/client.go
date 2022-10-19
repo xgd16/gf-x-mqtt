@@ -3,6 +3,7 @@ package mqtt
 import (
 	"fmt"
 	"github.com/eclipse/paho.mqtt.golang"
+	"github.com/gogf/gf/v2/encoding/gjson"
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/os/gctx"
 	"log"
@@ -57,6 +58,13 @@ func (t *Client) Run() {
 }
 
 func (t *Client) SendMsg(msg any) {
-	token := (*t.Client).Publish(t.Cfg.Topic, t.Cfg.Qos, false, msg)
+	json, err := gjson.EncodeString(msg)
+
+	if err != nil {
+		g.Log().Error(gctx.New(), "mqtt 创建json出错", err.Error())
+		return
+	}
+
+	token := (*t.Client).Publish(t.Cfg.Topic, t.Cfg.Qos, false, json)
 	token.Wait()
 }
