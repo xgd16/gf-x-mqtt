@@ -24,7 +24,6 @@ type Config struct {
 	MqttUrl   string `json:"mqttUrl"`   // mqtt 链接地址
 	ClientId  string `json:"clientId"`  // 客户端 id
 	Subscribe string `json:"subscribe"` // 订阅地址
-	Topic     string `json:"topic"`     // topic
 	Qos       byte   `json:"qos"`       // qos
 }
 
@@ -46,7 +45,6 @@ func initConfig() *Config {
 	mqttUrl, err := g.Cfg().Get(ctx, "mqtt.url")
 	clientId, err := g.Cfg().Get(ctx, "mqtt.clientId")
 	subscribe, err := g.Cfg().Get(ctx, "mqtt.subscribe")
-	topic, err := g.Cfg().Get(ctx, "mqtt.topic")
 	qos, err := g.Cfg().Get(ctx, "mqtt.qos", 0)
 
 	if err != nil {
@@ -58,7 +56,6 @@ func initConfig() *Config {
 		MqttUrl:   mqttUrl.String(),
 		ClientId:  clientId.String(),
 		Subscribe: subscribe.String(),
-		Topic:     topic.String(),
 		Qos:       byte(qos.Int()),
 	}
 }

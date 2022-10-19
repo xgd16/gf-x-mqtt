@@ -57,7 +57,7 @@ func (t *Client) Run() {
 	select {}
 }
 
-func (t *Client) SendMsg(msg any) {
+func (t *Client) SendMsg(msg any, topic string) {
 	json, err := gjson.EncodeString(msg)
 
 	if err != nil {
@@ -65,6 +65,6 @@ func (t *Client) SendMsg(msg any) {
 		return
 	}
 
-	token := (*t.Client).Publish(t.Cfg.Topic, t.Cfg.Qos, false, json)
+	token := (*t.Client).Publish(topic, t.Cfg.Qos, false, json)
 	token.Wait()
 }

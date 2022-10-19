@@ -5,5 +5,4 @@
     url = "tcp://192.168.0.220:1883"   // 连接地址
     clientId = "sdt_service_client"   // 客户端ID
     subscribe = "sdt/#"   // 订阅
-    topic = "sdt/1"   // topic
     qos = 2   // qos
