@@ -25,6 +25,8 @@ type Config struct {
 	ClientId  string `json:"clientId"`  // 客户端 id
 	Subscribe string `json:"subscribe"` // 订阅地址
 	Qos       byte   `json:"qos"`       // qos
+	Username  string `json:"username"`  // 用户名
+	Password  string `json:"password"`  // 密码
 }
 
 // CreateClient 创建客户端
@@ -41,22 +43,22 @@ func CreateClient() *Client {
 func initConfig() *Config {
 	ctx := gctx.New()
 
-	debug, err := g.Cfg().Get(ctx, "mqtt.debug", false)
-	mqttUrl, err := g.Cfg().Get(ctx, "mqtt.url")
-	clientId, err := g.Cfg().Get(ctx, "mqtt.clientId")
-	subscribe, err := g.Cfg().Get(ctx, "mqtt.subscribe")
-	qos, err := g.Cfg().Get(ctx, "mqtt.qos", 0)
+	mqttCfg, err := g.Cfg().Get(ctx, "mqtt")
+
+	mqttCfgData := mqttCfg.MapStrVar()
 
 	if err != nil {
 		panic("MQTT 配置初始化失败")
 	}
 
 	return &Config{
-		Debug:     debug.Bool(),
-		MqttUrl:   mqttUrl.String(),
-		ClientId:  clientId.String(),
-		Subscribe: subscribe.String(),
-		Qos:       byte(qos.Int()),
+		Debug:     mqttCfgData["debug"].Bool(),
+		MqttUrl:   mqttCfgData["url"].String(),
+		ClientId:  mqttCfgData["clientId"].String(),
+		Subscribe: mqttCfgData["subscribe"].String(),
+		Qos:       byte(mqttCfgData["qos"].Int()),
+		Username:  mqttCfgData["username"].String(),
+		Password:  mqttCfgData["password"].String(),
 	}
 }
 

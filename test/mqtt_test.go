@@ -12,8 +12,7 @@ var Client *mqtt.Client
 func TestRun(t *testing.T) {
 	Client = mqtt.CreateClient().SetMessageCallbackFunc(func(client *mqtt.Client, client2 mqtt2.Client, message mqtt2.Message) {
 		fmt.Println(message.MessageID(), message.Topic(), string(message.Payload()))
-
-		client.SendMsg("test")
+		client.SendMsg("收到", "sdt/r/1")
 	})
 
 	Client.Run()
