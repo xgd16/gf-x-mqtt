@@ -19,7 +19,15 @@ type Client struct {
 	OnConnectCallBackFunc mqtt.OnConnectHandler
 }
 
+type ClientOption struct {
+	// MessageCallbackFunc 接收到消息时触发函数
+	MessageCallbackFunc MessageHandler
+	// OnConnectCallBackFunc 连接成功时触发函数
+	OnConnectCallBackFunc mqtt.OnConnectHandler
+}
+
 type Config struct {
+	Name      string `json:"name"`      // name 名称
 	Debug     bool   `json:"debug"`     // debug 调试模式
 	MqttUrl   string `json:"mqttUrl"`   // mqtt 链接地址
 	ClientId  string `json:"clientId"`  // 客户端 id
@@ -30,36 +38,53 @@ type Config struct {
 }
 
 // CreateClient 创建客户端
-func CreateClient() *Client {
+func CreateClient(optionHandler func(*ClientOption)) {
 	cfg := initConfig()
 
-	return &Client{
-		Cfg: cfg,
+	option := &ClientOption{}
+
+	optionHandler(option)
+
+	for _, config := range cfg {
+		go (&Client{
+			Cfg: config,
+		}).SetMessageCallbackFunc(option.MessageCallbackFunc).SetOnConnectCallBackFunc(option.OnConnectCallBackFunc).Run()
 	}
+
+	select {}
 }
 
 // 初始化配置
 // 需要初始化的参数: debug模式 链接地址 clientId 订阅 topic Qos
-func initConfig() *Config {
+func initConfig() []*Config {
 	ctx := gctx.New()
 
 	mqttCfg, err := g.Cfg().Get(ctx, "mqtt")
-
-	mqttCfgData := mqttCfg.MapStrVar()
 
 	if err != nil {
 		panic("MQTT 配置初始化失败")
 	}
 
-	return &Config{
-		Debug:     mqttCfgData["debug"].Bool(),
-		MqttUrl:   mqttCfgData["url"].String(),
-		ClientId:  mqttCfgData["clientId"].String(),
-		Subscribe: mqttCfgData["subscribe"].String(),
-		Qos:       byte(mqttCfgData["qos"].Int()),
-		Username:  mqttCfgData["username"].String(),
-		Password:  mqttCfgData["password"].String(),
+	mqttCfgData := mqttCfg.MapStrVar()
+
+	var c []*Config
+
+	for i, i2 := range mqttCfgData {
+		v := i2.MapStrVar()
+
+		c = append(c, &Config{
+			Name:      i,
+			Debug:     v["debug"].Bool(),
+			MqttUrl:   v["url"].String(),
+			ClientId:  v["clientId"].String(),
+			Subscribe: v["subscribe"].String(),
+			Qos:       byte(v["qos"].Int()),
+			Username:  v["username"].String(),
+			Password:  v["password"].String(),
+		})
 	}
+
+	return c
 }
 
 // SetMessageCallbackFunc 接收到消息时触发函数

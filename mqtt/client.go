@@ -11,6 +11,8 @@ import (
 	"time"
 )
 
+var MqttList = map[string]*Client{}
+
 func (t *Client) Run() {
 	defer func() {
 		if err := recover(); err != nil {
@@ -37,12 +39,14 @@ func (t *Client) Run() {
 
 		t.MessageCallbackFunc(t, client, msg)
 	})
+	opts.SetAutoReconnect(true)
+	opts.SetMaxReconnectInterval(15 * time.Second)
 	opts.SetOnConnectHandler(t.OnConnectCallBackFunc)
 	opts.SetPingTimeout(1 * time.Second)
 	// 创建客户端
 	c := mqtt.NewClient(opts)
 	// 输出启动信息
-	fmt.Printf("MQTT 已启动 %s\n地址:%s\n订阅:%s\nQos:%d\n", t.Cfg.ClientId, t.Cfg.MqttUrl, t.Cfg.Subscribe, t.Cfg.Qos)
+	fmt.Printf("MQTT 已启动 %s\n地址:%s\n订阅:%s\nQos:%d\n\n", t.Cfg.ClientId, t.Cfg.MqttUrl, t.Cfg.Subscribe, t.Cfg.Qos)
 	// 开启链接
 	if token := c.Connect(); token.Wait() && token.Error() != nil {
 		panic(token.Error())
@@ -55,6 +59,8 @@ func (t *Client) Run() {
 	}
 	// 写入客户端信息
 	t.Client = &c
+
+	MqttList[t.Cfg.Name] = t
 	// 维持运行
 	select {}
 }
