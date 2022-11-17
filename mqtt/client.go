@@ -54,9 +54,12 @@ func (t *Client) Run() {
 	// 退出函数时断开链接
 	defer c.Disconnect(250)
 	// 订阅主题
-	if token := c.Subscribe(t.Cfg.Subscribe, t.Cfg.Qos, nil); token.Wait() && token.Error() != nil {
-		panic("订阅主题失败")
+	if t.Cfg.Subscribe != "false" {
+		if token := c.Subscribe(t.Cfg.Subscribe, t.Cfg.Qos, nil); token.Wait() && token.Error() != nil {
+			panic("订阅主题失败")
+		}
 	}
+
 	// 写入客户端信息
 	t.Client = &c
 

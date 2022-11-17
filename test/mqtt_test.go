@@ -7,8 +7,6 @@ import (
 	"testing"
 )
 
-var Client *mqtt.Client
-
 func TestRun(t *testing.T) {
 	mqtt.CreateClient(func(option *mqtt.ClientOption) {
 
@@ -18,6 +16,4 @@ func TestRun(t *testing.T) {
 		}
 
 	})
-
-	Client.Run()
 }
