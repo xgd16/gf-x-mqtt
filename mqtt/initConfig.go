@@ -38,14 +38,14 @@ type Config struct {
 }
 
 // CreateClient 创建客户端
-func CreateClient(optionHandler func(*ClientOption)) {
+func CreateClient(optionHandler func(*ClientOption, *Config)) {
 	cfg := initConfig()
 
-	option := &ClientOption{}
-
-	optionHandler(option)
-
 	for _, config := range cfg {
+		option := &ClientOption{}
+
+		optionHandler(option, config)
+
 		go (&Client{
 			Cfg: config,
 		}).SetMessageCallbackFunc(option.MessageCallbackFunc).SetOnConnectCallBackFunc(option.OnConnectCallBackFunc).Run()

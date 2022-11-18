@@ -1,18 +1,18 @@
 [mqtt]
     [mqtt.sdtClientEvent]
         debug = false
-        url = "tcp://127.0.0.1:1883"
+        url = "tcp://8.219.0.175:1883"
         clientId = "sdtClientEvent"
-        subscribe = "$SYS/brokers/emqx@172.17.0.2/clients/#"
+        subscribe = "$SYS/brokers/emqx@127.0.0.1/clients/#"
         qos = 0
-        username = "service"
-        password = "486213"
+        username = "admin"
+        password = "sdtadmin"
 
-    [mqtt.sdtStatsEvent]
-        debug = false
-        url = "tcp://127.0.0.1:1883"
-        clientId = "sdtStatsEvent"
-        subscribe = "$SYS/brokers/emqx@172.17.0.2/stats/#"
-        qos = 0
-        username = "service"
-        password = "486213"
+#    [mqtt.sdtStatsEvent]
+#        debug = false
+#        url = "tcp://127.0.0.1:1883"
+#        clientId = "sdtStatsEvent"
+#        subscribe = "$SYS/brokers/emqx@172.17.0.2/stats/#"
+#        qos = 0
+#        username = "service"
+#        password = "486213"

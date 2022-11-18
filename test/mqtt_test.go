@@ -8,12 +8,14 @@ import (
 )
 
 func TestRun(t *testing.T) {
-	mqtt.CreateClient(func(option *mqtt.ClientOption) {
+	mqtt.CreateClient(func(option *mqtt.ClientOption, config *mqtt.Config) {
 
 		option.MessageCallbackFunc = func(client *mqtt.Client, client2 mqtt2.Client, message mqtt2.Message) {
 			fmt.Println(message.MessageID(), message.Topic(), string(message.Payload()))
-			client.SendMsg("收到", "sdt/r/1")
+			client.SendMsg("收到", "sdt/c/1")
 		}
 
 	})
+
+	select {}
 }
