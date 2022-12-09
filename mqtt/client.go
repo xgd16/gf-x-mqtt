@@ -69,7 +69,13 @@ func (t *Client) Run() {
 	select {}
 }
 
-func (t *Client) SendMsg(msg any, topic string) {
+func (t *Client) SendMsg(msg any, topic string, qos ...byte) {
+	var qosNumber byte = 2
+
+	if len(qos) >= 1 {
+		qosNumber = qos[0]
+	}
+
 	json, err := gjson.EncodeString(msg)
 
 	if err != nil {
@@ -77,6 +83,6 @@ func (t *Client) SendMsg(msg any, topic string) {
 		return
 	}
 
-	token := (*t.Client).Publish(topic, t.Cfg.Qos, false, json)
+	token := (*t.Client).Publish(topic, qosNumber, false, json)
 	token.Wait()
 }
