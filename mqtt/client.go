@@ -18,8 +18,9 @@ func (t *Client) Run() {
 		if err := recover(); err != nil {
 			g.Log().Error(gctx.New(), "MQTT服务出现恐慌:", err)
 			time.Sleep(3 * time.Second)
-			t.Run()
 		}
+
+		t.Run()
 	}()
 
 	if t.Cfg.Debug {
