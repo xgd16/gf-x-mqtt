@@ -30,7 +30,7 @@ func (t *Client) Run() {
 	// 配置链接地址
 	opts := mqtt.NewClientOptions().AddBroker(t.Cfg.MqttUrl).SetClientID(t.Cfg.ClientId).SetUsername(t.Cfg.Username).SetPassword(t.Cfg.Password)
 
-	opts.SetKeepAlive(60 * time.Second)
+	opts.SetKeepAlive(time.Duration(t.Cfg.Ping) * time.Second)
 	// 设置消息回调处理函数
 	opts.SetDefaultPublishHandler(func(client mqtt.Client, msg mqtt.Message) {
 		if t.Cfg.Debug {
@@ -47,7 +47,7 @@ func (t *Client) Run() {
 	// 创建客户端
 	c := mqtt.NewClient(opts)
 	// 输出启动信息
-	fmt.Printf("MQTT 已启动 %s\n地址:%s\n订阅:%s\nQos:%d\n\n", t.Cfg.ClientId, t.Cfg.MqttUrl, t.Cfg.Subscribe, t.Cfg.Qos)
+	fmt.Printf("MQTT 已启动 %s\n地址:%s\n订阅:%s\nQos:%d\nPing:%d\n\n", t.Cfg.ClientId, t.Cfg.MqttUrl, t.Cfg.Subscribe, t.Cfg.Qos, t.Cfg.Ping)
 	// 开启链接
 	if token := c.Connect(); token.Wait() && token.Error() != nil {
 		panic(token.Error())

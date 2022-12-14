@@ -35,6 +35,7 @@ type Config struct {
 	Qos       byte   `json:"qos"`       // qos
 	Username  string `json:"username"`  // 用户名
 	Password  string `json:"password"`  // 密码
+	Ping      int    `json:"ping"`      // ping 频率
 }
 
 // CreateClient 创建客户端
@@ -72,6 +73,14 @@ func initConfig() []*Config {
 	for i, i2 := range mqttCfgData {
 		v := i2.MapStrVar()
 
+		var ping int
+
+		if v["ping"].IsEmpty() {
+			ping = 30
+		} else {
+			ping = v["ping"].Int()
+		}
+
 		c = append(c, &Config{
 			Name:      i,
 			Debug:     v["debug"].Bool(),
@@ -81,6 +90,7 @@ func initConfig() []*Config {
 			Qos:       byte(v["qos"].Int()),
 			Username:  v["username"].String(),
 			Password:  v["password"].String(),
+			Ping:      ping,
 		})
 	}
 
