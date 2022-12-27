@@ -92,8 +92,9 @@ func (t *Client) SendMsg(msg any, topic string, qos ...byte) {
 
 	gmlock.Lock(key)
 	// 推送消息
-	token := (*t.Client).Publish(topic, qosNumber, false, json)
-	token.Wait()
+	if token := (*t.Client).Publish(topic, qosNumber, false, json); token.Wait() && token.Error() != nil {
+		panic(fmt.Sprintf("推送出现错误: %s", token.Error()))
+	}
 
 	gmlock.Unlock(key)
 }
