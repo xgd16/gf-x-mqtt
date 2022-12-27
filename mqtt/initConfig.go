@@ -27,15 +27,16 @@ type ClientOption struct {
 }
 
 type Config struct {
-	Name      string `json:"name"`      // name 名称
-	Debug     bool   `json:"debug"`     // debug 调试模式
-	MqttUrl   string `json:"mqttUrl"`   // mqtt 链接地址
-	ClientId  string `json:"clientId"`  // 客户端 id
-	Subscribe string `json:"subscribe"` // 订阅地址
-	Qos       byte   `json:"qos"`       // qos
-	Username  string `json:"username"`  // 用户名
-	Password  string `json:"password"`  // 密码
-	Ping      int    `json:"ping"`      // ping 频率
+	Name         string `json:"name"`         // name 名称
+	Debug        bool   `json:"debug"`        // debug 调试模式
+	MqttUrl      string `json:"mqttUrl"`      // mqtt 链接地址
+	ClientId     string `json:"clientId"`     // 客户端 id
+	Subscribe    string `json:"subscribe"`    // 订阅地址
+	Qos          byte   `json:"qos"`          // qos
+	Username     string `json:"username"`     // 用户名
+	Password     string `json:"password"`     // 密码
+	Ping         int    `json:"ping"`         // ping 频率
+	CleanSession bool   `json:"cleanSession"` // cleanSession
 }
 
 // CreateClient 创建客户端
@@ -82,15 +83,16 @@ func initConfig() []*Config {
 		}
 
 		c = append(c, &Config{
-			Name:      i,
-			Debug:     v["debug"].Bool(),
-			MqttUrl:   v["url"].String(),
-			ClientId:  v["clientId"].String(),
-			Subscribe: v["subscribe"].String(),
-			Qos:       byte(v["qos"].Int()),
-			Username:  v["username"].String(),
-			Password:  v["password"].String(),
-			Ping:      ping,
+			Name:         i,
+			Debug:        v["debug"].Bool(),
+			MqttUrl:      v["url"].String(),
+			ClientId:     v["clientId"].String(),
+			Subscribe:    v["subscribe"].String(),
+			Qos:          byte(v["qos"].Int()),
+			Username:     v["username"].String(),
+			Password:     v["password"].String(),
+			CleanSession: v["cleanSession"].Bool(),
+			Ping:         ping,
 		})
 	}
 

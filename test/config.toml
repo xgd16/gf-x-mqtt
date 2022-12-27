@@ -7,6 +7,7 @@
         qos = 0
         username = "admin"
         password = "sdtadmin"
+        cleanSession = false
 
 #    [mqtt.sdtStatsEvent]
 #        debug = false

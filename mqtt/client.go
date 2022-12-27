@@ -48,6 +48,7 @@ func (t *Client) Run() {
 	opts.SetMaxReconnectInterval(15 * time.Second)
 	opts.SetOnConnectHandler(t.OnConnectCallBackFunc)
 	opts.SetPingTimeout(1 * time.Second)
+	opts.SetCleanSession(t.Cfg.CleanSession)
 	// 创建客户端
 	c := mqtt.NewClient(opts)
 	// 输出启动信息
