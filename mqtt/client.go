@@ -6,6 +6,7 @@ import (
 	"github.com/gogf/gf/v2/encoding/gjson"
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/os/gctx"
+	"github.com/gogf/gf/v2/os/gmlock"
 	"log"
 	"os"
 	"time"
@@ -37,8 +38,11 @@ func (t *Client) Run() {
 			fmt.Printf("TOPIC: %s\n", msg.Topic())
 			fmt.Printf("MSG: %s\n", msg.Payload())
 		}
+		key := GetMKey(t.Cfg.ClientId)
 
+		gmlock.Lock(key)
 		t.MessageCallbackFunc(t, client, msg)
+		gmlock.Unlock(key)
 	})
 	opts.SetAutoReconnect(true)
 	opts.SetMaxReconnectInterval(15 * time.Second)
@@ -70,19 +74,31 @@ func (t *Client) Run() {
 }
 
 func (t *Client) SendMsg(msg any, topic string, qos ...byte) {
+	// 设置 qos
 	var qosNumber byte = 2
-
+	// 如果在配置文件中配置了 那么使用配置文件中的配置
 	if len(qos) >= 1 {
 		qosNumber = qos[0]
 	}
-
+	// 将传入消息解析为json
 	json, err := gjson.EncodeString(msg)
 
 	if err != nil {
 		g.Log().Error(gctx.New(), "mqtt 创建json出错", err.Error())
 		return
 	}
+	// 开启锁
+	key := GetMKey(t.Cfg.ClientId)
 
+	gmlock.Lock(key)
+	// 推送消息
 	token := (*t.Client).Publish(topic, qosNumber, false, json)
 	token.Wait()
+
+	gmlock.Unlock(key)
+}
+
+// GetMKey 获取内存锁 Key
+func GetMKey(key string) string {
+	return fmt.Sprintf("%s_mLock", key)
 }
