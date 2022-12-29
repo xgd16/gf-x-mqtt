@@ -58,7 +58,11 @@ func (t *Client) Run() {
 		panic(token.Error())
 	}
 	// 退出函数时断开链接
-	defer c.Disconnect(250)
+	defer func() {
+		g.Log().Error(gctx.New(), t.Cfg.Name, "链接推出")
+
+		c.Disconnect(250)
+	}()
 	// 订阅主题
 	if t.Cfg.Subscribe != "false" {
 		if token := c.Subscribe(t.Cfg.Subscribe, t.Cfg.Qos, nil); token.Wait() && token.Error() != nil {
