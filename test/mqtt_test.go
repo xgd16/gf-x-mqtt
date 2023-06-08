@@ -3,7 +3,7 @@ package test
 import (
 	"fmt"
 	mqtt2 "github.com/eclipse/paho.mqtt.golang"
-	"gogs.mirlowz.com/x/gf-x-mqtt/mqtt"
+	"github.com/xgd16/gf-x-mqtt/mqtt"
 	"testing"
 )
 
