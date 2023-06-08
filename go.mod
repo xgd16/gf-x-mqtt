@@ -5,7 +5,6 @@ go 1.19
 require (
 	github.com/eclipse/paho.mqtt.golang v1.4.2
 	github.com/gogf/gf/v2 v2.2.1
-	gogs.mirlowz.com/x/gf-x-mqtt v0.0.16
 )
 
 require (
