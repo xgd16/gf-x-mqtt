@@ -1,4 +1,4 @@
-package mqtt
+package xmqtt
 
 import (
 	"fmt"
@@ -19,10 +19,9 @@ func (t *Client) Run() {
 			g.Log().Error(gctx.New(), "MQTT服务出现恐慌:", err)
 			time.Sleep(3 * time.Second)
 		}
-
 		t.Run()
 	}()
-
+	// 设置 debug
 	if t.Cfg.Debug {
 		mqtt.DEBUG = log.New(os.Stdout, "", 0)
 		mqtt.ERROR = log.New(os.Stdout, "", 0)
@@ -37,8 +36,11 @@ func (t *Client) Run() {
 			fmt.Printf("TOPIC: %s\n", msg.Topic())
 			fmt.Printf("MSG: %s\n", msg.Payload())
 		}
-
-		t.MessageCallbackFunc(t, client, msg)
+		t.MessageCallbackFunc(&MessageHandlerData{
+			XMQTT:   t,
+			OMQTT:   client,
+			Message: msg,
+		})
 	})
 	opts.SetAutoReconnect(true)
 	opts.SetMaxReconnectInterval(15 * time.Second)
@@ -55,8 +57,8 @@ func (t *Client) Run() {
 	}
 	// 退出函数时断开链接
 	defer func() {
-		g.Log().Error(gctx.New(), t.Cfg.Name, "链接推出")
-
+		g.Log().Error(gctx.New(), t.Cfg.Name, "连接退出...")
+		// 关闭连接
 		c.Disconnect(250)
 	}()
 	// 订阅主题
@@ -65,16 +67,16 @@ func (t *Client) Run() {
 			panic("订阅主题失败")
 		}
 	}
-
 	// 写入客户端信息
 	t.Client = &c
-
+	// 写入全局
 	MqttList[t.Cfg.Name] = t
 	// 维持运行
 	select {}
 }
 
-func (t *Client) SendMsg(msg any, topic string, qos ...byte) {
+func (t *Client) SendMsg(msg any, topic string, qos ...byte) error {
+	ctx := gctx.New()
 	// 设置 qos
 	var qosNumber byte = 2
 	// 如果在配置文件中配置了 那么使用配置文件中的配置
@@ -83,18 +85,15 @@ func (t *Client) SendMsg(msg any, topic string, qos ...byte) {
 	}
 	// 将传入消息解析为json
 	json, err := gjson.EncodeString(msg)
-
 	if err != nil {
-		g.Log().Error(gctx.New(), "mqtt 创建json出错", err.Error())
-		return
+		g.Log().Error(ctx, "mqtt 创建json出错", err.Error())
+		return err
 	}
 	// 推送消息
 	if token := (*t.Client).Publish(topic, qosNumber, false, json); token.Wait() && token.Error() != nil {
-		panic(fmt.Sprintf("推送出现错误: %s", token.Error()))
+		err = token.Error()
+		g.Log().Error(ctx, fmt.Sprintf("推送出现错误: %s", err))
+		return err
 	}
-}
-
-// GetMKey 获取内存锁 Key
-func GetMKey(key string) string {
-	return fmt.Sprintf("%s_mLock", key)
+	return nil
 }
