@@ -10,6 +10,26 @@
     username = "service" # 用户名
     password = "486213" # 密码
 ```
+### 代码演示
+```go
+package main
+
+import (
+    "fmt"
+    "github.com/xgd16/gf-x-mqtt/xmqtt"
+)
+
+func main() {
+    xmqtt.CreateClient(func(option *xmqtt.ClientCallBackOption, config *xmqtt.Config) {
+        option.MessageCallbackFunc = func(data *xmqtt.MessageHandlerData) {
+            fmt.Println(data.GetMessageId(), data.GetTopic(), data.GetMsg())
+            //client.SendMsg("收到", "sdt/c/1")
+        }
+    })
+    select {}
+}
+```
+
 # 建议
     服务端订阅和客户端订阅分开防止串扰
 ### 示例
