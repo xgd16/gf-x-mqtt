@@ -2,6 +2,7 @@ package xmqtt
 
 import (
 	mqtt "github.com/eclipse/paho.mqtt.golang"
+	"github.com/gogf/gf/v2/encoding/gjson"
 )
 
 type MessageHandlerData struct {
@@ -55,6 +56,12 @@ type EventHandlerData struct {
 // SendMsg 发送消息
 func (t *EventHandlerData) SendMsg(msg any, topic string, qos ...byte) error {
 	return t.MsgHandlerData.XMQTT.SendMsg(msg, topic, qos...)
+}
+
+// GetJson 获取 JSON 对象
+func (t *EventHandlerData) GetJson() (json *gjson.Json) {
+	json, _ = gjson.DecodeToJson(t.MsgHandlerData.GetMsg())
+	return
 }
 
 // MessageHandler 消息处理函数
