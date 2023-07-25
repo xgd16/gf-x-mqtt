@@ -40,33 +40,33 @@ func main() {
 package mqtt
 
 import (
-	"demo/src/service/mqtt/handler"
-	"github.com/gogf/gf/v2/frame/g"
-	"github.com/gogf/gf/v2/os/gctx"
-	"github.com/xgd16/gf-x-mqtt/xmqtt"
+    "demo/src/service/mqtt/handler"
+    "github.com/gogf/gf/v2/frame/g"
+    "github.com/gogf/gf/v2/os/gctx"
+    "github.com/xgd16/gf-x-mqtt/xmqtt"
 )
 
 // 注册 MQTT 处理
 var register = map[string]func(data *xmqtt.EventHandlerData){
-	xmqtt.ConnectEvent:    handler.Connect,   // 客户端连接事件
-	xmqtt.DisconnectEvent: handler.Connect,   // 客户端断开连接事件
-	xmqtt.NullEvent:       handler.NullEvent, // 没有事件时触发
+    xmqtt.ConnectEvent:    handler.Connect,   // 客户端连接事件
+    xmqtt.DisconnectEvent: handler.Connect,   // 客户端断开连接事件
+    xmqtt.NullEvent:       handler.NullEvent, // 没有事件时触发
 }
 
 func Service() {
-	ctx := gctx.New()
-	xmqtt.CreateClient(func(option *xmqtt.ClientCallBackOption, config *xmqtt.Config) {
-		option.MessageCallbackFunc = func(data *xmqtt.MessageHandlerData) {
-			// 获取 事件
-			eventName, eventData, eventErr := data.GetEvent()
-			if eventErr != nil {
-				g.Log().Error(ctx, "MQTT 事件出错", eventErr)
-				return
-			}
-			// 处理 事件
-			register[eventName](&xmqtt.EventHandlerData{EventData: eventData, MsgHandlerData: data})
-		}
-	})
+    ctx := gctx.New()
+    xmqtt.CreateClient(func(option *xmqtt.ClientCallBackOption, config *xmqtt.Config) {
+        option.MessageCallbackFunc = func(data *xmqtt.MessageHandlerData) {
+            // 获取 事件
+            eventName, eventData, eventErr := data.GetEvent()
+            if eventErr != nil {
+                g.Log().Error(ctx, "MQTT 事件出错", eventErr)
+                return
+            }
+            // 处理 事件
+            register[eventName](&xmqtt.EventHandlerData{EventData: eventData, MsgHandlerData: data})
+        }
+    })
 }
 
 ```
@@ -77,16 +77,16 @@ func Service() {
 package handler
 
 import (
-	"fmt"
-	"github.com/gogf/gf/v2/frame/g"
-	"github.com/xgd16/gf-x-mqtt/xmqtt"
+    "fmt"
+    "github.com/gogf/gf/v2/frame/g"
+    "github.com/xgd16/gf-x-mqtt/xmqtt"
 )
 
 func NullEvent(data *xmqtt.EventHandlerData) {
-	fmt.Println(data.MsgHandlerData.GetTopic(), data.MsgHandlerData.GetMsg())
-	data.SendMsg(g.Map{
-		"msg": data.GetJson().Get("msg").String() + "!!!!!!!!!!!!!!!",
-	}, "a/1")
+    fmt.Println(data.MsgHandlerData.GetTopic(), data.MsgHandlerData.GetMsg())
+    data.SendMsg(g.Map{
+        "msg": data.GetJson().Get("msg").String() + "!!!!!!!!!!!!!!!",
+    }, "a/1")
 }
 ```
 
