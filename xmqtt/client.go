@@ -92,7 +92,7 @@ func (t *Client) SendMsg(msg any, topic string, qos ...byte) error {
 		return nil
 	}
 	// 设置 qos
-	var qosNumber byte = 2
+	var qosNumber byte = 0
 	// 如果在配置文件中配置了 那么使用配置文件中的配置
 	if len(qos) >= 1 {
 		qosNumber = qos[0]
