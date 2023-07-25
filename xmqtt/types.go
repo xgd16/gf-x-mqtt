@@ -38,6 +38,10 @@ func (t *MessageHandlerData) GetEvent() (eventName string, data any, err error) 
 		if data.Event == "disconnected" {
 			return DisconnectEvent, data, nil
 		}
+	} else {
+		if err != nil {
+			return "", nil, err
+		}
 	}
 	return NullEvent, nil, nil
 }
