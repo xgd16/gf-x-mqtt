@@ -52,6 +52,11 @@ type EventHandlerData struct {
 	EventData      any
 }
 
+// SendMsg 发送消息
+func (t *EventHandlerData) SendMsg(msg any, topic string, qos ...byte) error {
+	return t.MsgHandlerData.XMQTT.SendMsg(msg, topic, qos...)
+}
+
 // MessageHandler 消息处理函数
 type MessageHandler func(handlerData *MessageHandlerData)
 
