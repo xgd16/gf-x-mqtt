@@ -9,7 +9,8 @@ import (
 func TestRun(t *testing.T) {
 	xmqtt.CreateClient(func(option *xmqtt.ClientCallBackOption, config *xmqtt.Config) {
 		option.MessageCallbackFunc = func(data *xmqtt.MessageHandlerData) {
-			fmt.Println(data.GetMessageId(), data.GetTopic(), data.GetMsg())
+			//fmt.Println(data.GetMessageId(), data.GetTopic(), data.GetMsg())
+			fmt.Println(data.GetEvent())
 			//client.SendMsg("收到", "sdt/c/1")
 		}
 	})

@@ -28,7 +28,26 @@ func (t *MessageHandlerData) GetMsg() string {
 	return string(t.Message.Payload())
 }
 
+// GetEvent 获取事件
+func (t *MessageHandlerData) GetEvent() (eventName string, data any, err error) {
+	// 是否为系统客户端连接事件
+	if data, ok, err := IsSystemConnectEvent(t.GetMsg(), t.GetTopic()); ok && err == nil {
+		if data.Event == "connected" {
+			return ConnectEvent, data, nil
+		}
+		if data.Event == "disconnected" {
+			return DisconnectEvent, data, nil
+		}
+	}
+	return NullEvent, nil, nil
+}
+
 type MessageHandler func(handlerData *MessageHandlerData)
+
+type SystemConnectEvent struct {
+	Event    string `json:"event"`
+	ClientId string `json:"clientId"`
+}
 
 // Client 客户端结构对象
 type Client struct {

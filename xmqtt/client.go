@@ -11,6 +11,12 @@ import (
 	"time"
 )
 
+const (
+	ConnectEvent    = "ConnectEvent"
+	DisconnectEvent = "DisconnectEvent"
+	NullEvent       = "NullEvent"
+)
+
 var MqttList = map[string]*Client{}
 
 func (t *Client) Run() {
