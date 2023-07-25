@@ -47,9 +47,9 @@ func (t *MessageHandlerData) GetEvent() (eventName string, data any, err error) 
 }
 
 // EventHandlerData 事件处理数据
-type EventHandlerData[T any] struct {
+type EventHandlerData struct {
 	MsgHandlerData *MessageHandlerData
-	EventData      T
+	EventData      any
 }
 
 // MessageHandler 消息处理函数
