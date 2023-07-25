@@ -16,7 +16,8 @@ func CreateClient(optionHandler func(*ClientCallBackOption, *Config)) {
 		optionHandler(option, config)
 		// 每个客户端在独立的协程中
 		go (&Client{
-			Cfg: config,
+			IsInit: true,
+			Cfg:    config,
 		}).SetMessageCallbackFunc(option.MessageCallbackFunc).SetOnConnectCallBackFunc(option.OnConnectCallBackFunc).Run()
 	}
 }

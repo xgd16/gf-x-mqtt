@@ -17,7 +17,8 @@ const (
 	NullEvent       = "NullEvent"
 )
 
-var MqttList = map[string]*Client{}
+// MqttList MQTT 客户端列表
+var MqttList = CreateSafeMQTTList()
 
 func (t *Client) Run() {
 	defer func() {
@@ -76,13 +77,20 @@ func (t *Client) Run() {
 	// 写入客户端信息
 	t.Client = &c
 	// 写入全局
-	MqttList[t.Cfg.Name] = t
+	MqttList.Set(t.Cfg.Name, t)
 	// 维持运行
 	select {}
 }
 
 func (t *Client) SendMsg(msg any, topic string, qos ...byte) error {
 	ctx := gctx.New()
+	// 如果没有初始化那么退出发送
+	if !t.IsInit {
+		logContext := "当前 MQTT 名称不存在 或 初始化失败"
+		fmt.Println(logContext)
+		g.Log().Warning(ctx, logContext)
+		return nil
+	}
 	// 设置 qos
 	var qosNumber byte = 2
 	// 如果在配置文件中配置了 那么使用配置文件中的配置
