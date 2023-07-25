@@ -66,6 +66,11 @@ type SystemConnectEvent struct {
 	ClientId string `json:"clientId"`
 }
 
+// IsCurrentService 是否为当前服务
+func (t *SystemConnectEvent) IsCurrentService(clientId string) bool {
+	return t.ClientId == clientId
+}
+
 // Client 客户端结构对象
 type Client struct {
 	// Cfg 配置
