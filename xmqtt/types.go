@@ -8,8 +8,8 @@ import (
 
 // SafeMQTTList 安全 MQTT 列表
 type SafeMQTTList struct {
-	sync.RWMutex
-	M map[string]*Client
+	mu sync.RWMutex
+	M  map[string]*Client
 }
 
 // CreateSafeMQTTList 创建 安全 MQTT 列表
@@ -21,8 +21,8 @@ func CreateSafeMQTTList() *SafeMQTTList {
 
 // Get 获取 MQTT 客户端对象
 func (t *SafeMQTTList) Get(mqttName string) *Client {
-	t.RLock()
-	defer t.RUnlock()
+	t.mu.RLock()
+	defer t.mu.RUnlock()
 	if data, ok := t.M[mqttName]; ok {
 		return data
 	}
@@ -31,8 +31,8 @@ func (t *SafeMQTTList) Get(mqttName string) *Client {
 
 // Set 设置 MQTT 客户端对象
 func (t *SafeMQTTList) Set(mqttName string, client *Client) {
-	t.Lock()
-	defer t.Unlock()
+	t.mu.Lock()
+	defer t.mu.Unlock()
 	t.M[mqttName] = client
 }
 
