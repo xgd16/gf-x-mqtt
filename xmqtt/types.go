@@ -42,8 +42,16 @@ func (t *MessageHandlerData) GetEvent() (eventName string, data any, err error) 
 	return NullEvent, nil, nil
 }
 
+// EventHandlerData 事件处理数据
+type EventHandlerData[T any] struct {
+	MsgHandlerData *MessageHandlerData
+	EventData      T
+}
+
+// MessageHandler 消息处理函数
 type MessageHandler func(handlerData *MessageHandlerData)
 
+// SystemConnectEvent 系统客户端连接事件
 type SystemConnectEvent struct {
 	Event    string `json:"event"`
 	ClientId string `json:"clientId"`
