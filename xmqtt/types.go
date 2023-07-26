@@ -2,6 +2,7 @@ package xmqtt
 
 import (
 	mqtt "github.com/eclipse/paho.mqtt.golang"
+	"github.com/gogf/gf/v2/container/gvar"
 	"github.com/gogf/gf/v2/encoding/gjson"
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/os/gctx"
@@ -212,6 +213,10 @@ func (t *MqttResp) toMap() {
 
 func (t *MqttResp) Resp(topic, command string, advanced ...func(data map[string]any) map[string]any) {
 	t.command = command
+	// 判断data如果是空那么修改为 []int 类型
+	if gvar.New(t.data, true).IsEmpty() {
+		t.data = []int{}
+	}
 	// 将数据写入map
 	t.toMap()
 	// 进行高级操作
