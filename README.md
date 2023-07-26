@@ -121,7 +121,16 @@ SendMsg(msg any, topic string, qos ...byte) error
 
 3. qos **发送模式默认** ``0``
 
+> 快速返回 json
 
+```go
+xmqtt.MqttList.Get(global.DefaultMqttClientName).Json().SetData(g.Map{
+	"msg":  msg,
+	"mode": mode,
+	"from": from,
+	"to":   to,
+}).Resp(lib.GetMqttClientTopic(userId), "wsMessage")
+```
 
 ### 推荐服务端
 
