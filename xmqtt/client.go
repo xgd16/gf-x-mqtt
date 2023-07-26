@@ -20,6 +20,8 @@ const (
 // MqttList MQTT 客户端列表
 var MqttList = CreateSafeMQTTList()
 
+var SendDefaultQos byte = 0
+
 func (t *Client) Run() {
 	defer func() {
 		if err := recover(); err != nil {
@@ -92,7 +94,7 @@ func (t *Client) SendMsg(msg any, topic string, qos ...byte) error {
 		return nil
 	}
 	// 设置 qos
-	var qosNumber byte = 0
+	var qosNumber = SendDefaultQos
 	// 如果在配置文件中配置了 那么使用配置文件中的配置
 	if len(qos) >= 1 {
 		qosNumber = qos[0]
@@ -110,4 +112,8 @@ func (t *Client) SendMsg(msg any, topic string, qos ...byte) error {
 		return err
 	}
 	return nil
+}
+
+func (t *Client) Json() *MqttResp {
+	return CreateMqttResp(t)
 }

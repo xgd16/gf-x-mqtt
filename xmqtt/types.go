@@ -3,6 +3,9 @@ package xmqtt
 import (
 	mqtt "github.com/eclipse/paho.mqtt.golang"
 	"github.com/gogf/gf/v2/encoding/gjson"
+	"github.com/gogf/gf/v2/frame/g"
+	"github.com/gogf/gf/v2/os/gctx"
+	"github.com/gogf/gf/v2/os/gtime"
 	"sync"
 )
 
@@ -141,4 +144,82 @@ type Config struct {
 	Password     string `json:"password"`     // 密码
 	Ping         int    `json:"ping"`         // ping 频率
 	CleanSession bool   `json:"cleanSession"` // cleanSession
+}
+
+// MqttResp MQTT 返回数据
+type MqttResp struct {
+	client   *Client
+	Code     int            `json:"code"`
+	Msg      string         `json:"msg"`
+	Data     any            `json:"data"`
+	TimeUnix int64          `json:"time"`
+	Command  string         `json:"command"`
+	M        map[string]any `json:"m"`
+}
+
+type MqttRespOptionType struct {
+	SuccessCode int    `json:"successCode"`
+	ErrorCode   int    `json:"errorCode"`
+	SuccessMsg  string `json:"successMsg"`
+	ErrorMsg    string `json:"errorMsg"`
+}
+
+var MqttRespOption = &MqttRespOptionType{
+	SuccessCode: 1000,
+	ErrorCode:   1001,
+	SuccessMsg:  "SUCCESS!!!",
+	ErrorMsg:    "ERROR!!!",
+}
+
+func CreateMqttResp(client *Client) *MqttResp {
+	return &MqttResp{
+		client:   client,
+		Code:     MqttRespOption.SuccessCode,
+		Msg:      MqttRespOption.SuccessMsg,
+		TimeUnix: gtime.Now().UnixMilli(),
+		M:        make(map[string]any, 1),
+	}
+}
+
+func (t *MqttResp) SetCode(code int) *MqttResp {
+	t.Code = code
+	return t
+}
+
+func (t *MqttResp) SetMsg(msg string) *MqttResp {
+	t.Msg = msg
+	return t
+}
+
+func (t *MqttResp) SetData(data any) *MqttResp {
+	t.Data = data
+	return t
+}
+
+func (t *MqttResp) Err() *MqttResp {
+	t.Code = MqttRespOption.ErrorCode
+	t.Msg = MqttRespOption.ErrorMsg
+	return t
+}
+
+func (t *MqttResp) toMap() {
+	t.M["code"] = t.Code
+	t.M["msg"] = t.Msg
+	t.M["data"] = t.Data
+	t.M["timeUnix"] = t.TimeUnix
+	t.M["command"] = t.Command
+}
+
+func (t *MqttResp) Resp(topic, command string, advanced ...func(data map[string]any) map[string]any) {
+	t.Command = command
+	// 将数据写入map
+	t.toMap()
+	// 进行高级操作
+	for _, fn := range advanced {
+		t.M = fn(t.M)
+	}
+	// 发送
+	if err := t.client.SendMsg(t.M, topic); err != nil {
+		g.Log().Error(gctx.New(), "推送 MQTT 消息失败", err)
+	}
 }
