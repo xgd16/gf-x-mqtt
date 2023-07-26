@@ -149,12 +149,12 @@ type Config struct {
 // MqttResp MQTT 返回数据
 type MqttResp struct {
 	client   *Client
-	Code     int            `json:"code"`
-	Msg      string         `json:"msg"`
-	Data     any            `json:"data"`
-	TimeUnix int64          `json:"time"`
-	Command  string         `json:"command"`
-	M        map[string]any `json:"m"`
+	code     int
+	msg      string
+	data     any
+	timeUnix int64
+	command  string
+	m        map[string]any
 }
 
 type MqttRespOptionType struct {
@@ -174,52 +174,52 @@ var MqttRespOption = &MqttRespOptionType{
 func CreateMqttResp(client *Client) *MqttResp {
 	return &MqttResp{
 		client:   client,
-		Code:     MqttRespOption.SuccessCode,
-		Msg:      MqttRespOption.SuccessMsg,
-		TimeUnix: gtime.Now().UnixMilli(),
-		M:        make(map[string]any, 1),
+		code:     MqttRespOption.SuccessCode,
+		msg:      MqttRespOption.SuccessMsg,
+		timeUnix: gtime.Now().UnixMilli(),
+		m:        make(map[string]any, 1),
 	}
 }
 
 func (t *MqttResp) SetCode(code int) *MqttResp {
-	t.Code = code
+	t.code = code
 	return t
 }
 
 func (t *MqttResp) SetMsg(msg string) *MqttResp {
-	t.Msg = msg
+	t.msg = msg
 	return t
 }
 
 func (t *MqttResp) SetData(data any) *MqttResp {
-	t.Data = data
+	t.data = data
 	return t
 }
 
 func (t *MqttResp) Err() *MqttResp {
-	t.Code = MqttRespOption.ErrorCode
-	t.Msg = MqttRespOption.ErrorMsg
+	t.code = MqttRespOption.ErrorCode
+	t.msg = MqttRespOption.ErrorMsg
 	return t
 }
 
 func (t *MqttResp) toMap() {
-	t.M["code"] = t.Code
-	t.M["msg"] = t.Msg
-	t.M["data"] = t.Data
-	t.M["timeUnix"] = t.TimeUnix
-	t.M["command"] = t.Command
+	t.m["code"] = t.code
+	t.m["msg"] = t.msg
+	t.m["data"] = t.data
+	t.m["timeUnix"] = t.timeUnix
+	t.m["command"] = t.command
 }
 
 func (t *MqttResp) Resp(topic, command string, advanced ...func(data map[string]any) map[string]any) {
-	t.Command = command
+	t.command = command
 	// 将数据写入map
 	t.toMap()
 	// 进行高级操作
 	for _, fn := range advanced {
-		t.M = fn(t.M)
+		t.m = fn(t.m)
 	}
 	// 发送
-	if err := t.client.SendMsg(t.M, topic); err != nil {
+	if err := t.client.SendMsg(t.m, topic); err != nil {
 		g.Log().Error(gctx.New(), "推送 MQTT 消息失败", err)
 	}
 }
