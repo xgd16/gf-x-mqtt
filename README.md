@@ -7,11 +7,11 @@
     [mqtt.clientAdmin] # 此位置就是 clietName
         debug = false # 是否开启debug 
         url = "tcp://127.0.0.1:1884" # 连接目标
-        clientId = "tuokeClient123" # 客户端id
-        subscribe = "$SYS/brokers/emqx@172.17.0.2/clients/#" # 订阅频道 无需订阅 写 false
+        clientId = "aaa" # 客户端id
+        subscribe = "a/#" # 订阅频道 无需订阅 写 false
         qos = 0 # 协议质量 0 1 2
-        username = "clientAdmin" # 用户名密码
-        password = "clientAdmin321." # 密码
+        username = "***" # 用户名密码
+        password = "***" # 密码
         cleanSession = false # 清空 session
 ```
 ### 代码演示
