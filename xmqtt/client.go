@@ -2,13 +2,14 @@ package xmqtt
 
 import (
 	"fmt"
-	"github.com/eclipse/paho.mqtt.golang"
-	"github.com/gogf/gf/v2/encoding/gjson"
-	"github.com/gogf/gf/v2/frame/g"
-	"github.com/gogf/gf/v2/os/gctx"
 	"log"
 	"os"
 	"time"
+
+	mqtt "github.com/eclipse/paho.mqtt.golang"
+	"github.com/gogf/gf/v2/encoding/gjson"
+	"github.com/gogf/gf/v2/frame/g"
+	"github.com/gogf/gf/v2/os/gctx"
 )
 
 const (
@@ -19,8 +20,6 @@ const (
 
 // MqttList MQTT 客户端列表
 var MqttList = CreateSafeMQTTList()
-
-var SendDefaultQos byte = 0
 
 func (t *Client) Run() {
 	defer func() {
@@ -94,7 +93,7 @@ func (t *Client) SendMsg(msg any, topic string, qos ...byte) error {
 		return nil
 	}
 	// 设置 qos
-	var qosNumber = SendDefaultQos
+	var qosNumber = t.Cfg.Qos
 	// 如果在配置文件中配置了 那么使用配置文件中的配置
 	if len(qos) >= 1 {
 		qosNumber = qos[0]
