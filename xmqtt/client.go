@@ -2,6 +2,8 @@ package xmqtt
 
 import (
 	"fmt"
+	"github.com/gogf/gf/v2/text/gstr"
+	"github.com/gogf/gf/v2/util/gconv"
 	"log"
 	"os"
 	"time"
@@ -41,8 +43,7 @@ func (t *Client) Run() {
 	// 设置消息回调处理函数
 	opts.SetDefaultPublishHandler(func(client mqtt.Client, msg mqtt.Message) {
 		if t.Cfg.Debug {
-			fmt.Printf("TOPIC: %s\n", msg.Topic())
-			fmt.Printf("MSG: %s\n", msg.Payload())
+			fmt.Printf("订阅: %s\n消息: %s\n", msg.Topic(), msg.Payload())
 		}
 		t.MessageCallbackFunc(&MessageHandlerData{
 			XMQTT:   t,
@@ -71,8 +72,12 @@ func (t *Client) Run() {
 	}()
 	// 订阅主题
 	if t.Cfg.Subscribe != "false" {
-		if token := c.Subscribe(t.Cfg.Subscribe, t.Cfg.Qos, nil); token.Wait() && token.Error() != nil {
-			panic("订阅主题失败")
+		for _, item := range gstr.Split(t.Cfg.Subscribe, ",") {
+			// 订阅
+			subInfo := gstr.Split(item, ":")
+			if token := c.Subscribe(subInfo[0], gconv.Byte(subInfo[1]), nil); token.Wait() && token.Error() != nil {
+				panic("订阅主题失败")
+			}
 		}
 	}
 	// 写入客户端信息
