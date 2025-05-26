@@ -1,13 +1,14 @@
 package xmqtt
 
 import (
+	"context"
 	mqtt "github.com/eclipse/paho.mqtt.golang"
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/os/gctx"
 )
 
 // CreateClient 创建客户端
-func CreateClient(optionHandler func(*ClientCallBackOption, *Config)) {
+func CreateClient(ctx context.Context, optionHandler func(*ClientCallBackOption, *Config)) {
 	cfg := initConfig()
 	// 根据配置循环创建监听的客户端
 	for _, config := range cfg {
@@ -18,7 +19,7 @@ func CreateClient(optionHandler func(*ClientCallBackOption, *Config)) {
 		go (&Client{
 			IsInit: true,
 			Cfg:    config,
-		}).SetMessageCallbackFunc(option.MessageCallbackFunc).SetOnConnectCallBackFunc(option.OnConnectCallBackFunc).Run()
+		}).SetMessageCallbackFunc(option.MessageCallbackFunc).SetOnConnectCallBackFunc(option.OnConnectCallBackFunc).Run(ctx)
 	}
 }
 

@@ -1,6 +1,8 @@
 package xmqtt
 
 import (
+	"context"
+	"encoding/json"
 	"fmt"
 	"github.com/gogf/gf/v2/text/gstr"
 	"github.com/gogf/gf/v2/util/gconv"
@@ -9,9 +11,7 @@ import (
 	"time"
 
 	mqtt "github.com/eclipse/paho.mqtt.golang"
-	"github.com/gogf/gf/v2/encoding/gjson"
 	"github.com/gogf/gf/v2/frame/g"
-	"github.com/gogf/gf/v2/os/gctx"
 )
 
 const (
@@ -23,13 +23,13 @@ const (
 // MqttList MQTT 客户端列表
 var MqttList = CreateSafeMQTTList()
 
-func (t *Client) Run() {
+func (t *Client) Run(ctx context.Context) {
 	defer func() {
 		if err := recover(); err != nil {
-			g.Log().Error(gctx.New(), "MQTT服务出现恐慌:", err)
+			g.Log().Error(ctx, "MQTT服务出现恐慌:", err)
 			time.Sleep(3 * time.Second)
 		}
-		t.Run()
+		t.Run(ctx)
 	}()
 	// 设置 debug
 	if t.Cfg.Debug {
@@ -59,14 +59,22 @@ func (t *Client) Run() {
 	// 创建客户端
 	c := mqtt.NewClient(opts)
 	// 输出启动信息
-	fmt.Printf("MQTT 已启动 %s\n地址:%s\n订阅:%s\nQos:%d\nPing:%d\n\n", t.Cfg.ClientId, t.Cfg.MqttUrl, t.Cfg.Subscribe, t.Cfg.Qos, t.Cfg.Ping)
+	fmt.Printf(`
+MQTT 已启动
+ClientId: %s
+地址: %s
+订阅: %s
+Qos: %d
+Ping: %d
+
+`, t.Cfg.ClientId, t.Cfg.MqttUrl, t.Cfg.Subscribe, t.Cfg.Qos, t.Cfg.Ping)
 	// 开启链接
 	if token := c.Connect(); token.Wait() && token.Error() != nil {
 		panic(token.Error())
 	}
 	// 退出函数时断开链接
 	defer func() {
-		g.Log().Error(gctx.New(), t.Cfg.Name, "连接退出...")
+		g.Log().Error(ctx, t.Cfg.Name, "连接退出...")
 		// 关闭连接
 		c.Disconnect(250)
 	}()
@@ -85,17 +93,17 @@ func (t *Client) Run() {
 	// 写入全局
 	MqttList.Set(t.Cfg.Name, t)
 	// 维持运行
-	select {}
+	select {
+	case <-ctx.Done():
+		return
+	}
 }
 
-func (t *Client) SendMsg(msg any, topic string, qos ...byte) error {
-	ctx := gctx.New()
+func (t *Client) SendMsg(msg any, topic string, qos ...byte) (err error) {
 	// 如果没有初始化那么退出发送
 	if !t.IsInit {
-		logContext := "当前 MQTT 名称不存在 或 初始化失败"
-		fmt.Println(logContext)
-		g.Log().Warning(ctx, logContext)
-		return nil
+		err = fmt.Errorf("MQTT未初始化")
+		return
 	}
 	// 设置 qos
 	var qosNumber = t.Cfg.Qos
@@ -104,18 +112,16 @@ func (t *Client) SendMsg(msg any, topic string, qos ...byte) error {
 		qosNumber = qos[0]
 	}
 	// 将传入消息解析为json
-	json, err := gjson.EncodeString(msg)
+	jsonByte, err := json.Marshal(msg)
 	if err != nil {
-		g.Log().Error(ctx, "mqtt 创建json出错", err.Error())
-		return err
+		return
 	}
 	// 推送消息
-	if token := (*t.Client).Publish(topic, qosNumber, false, json); token.Wait() && token.Error() != nil {
+	if token := (*t.Client).Publish(topic, qosNumber, false, string(jsonByte)); token.Wait() && token.Error() != nil {
 		err = token.Error()
-		g.Log().Error(ctx, fmt.Sprintf("推送出现错误: %s", err))
-		return err
+		return
 	}
-	return nil
+	return
 }
 
 func (t *Client) Json() *MqttResp {
