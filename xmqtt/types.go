@@ -7,6 +7,7 @@ import (
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/os/gctx"
 	"github.com/gogf/gf/v2/os/gtime"
+	"github.com/gogf/gf/v2/util/gconv"
 	"sync"
 )
 
@@ -156,6 +157,7 @@ type MqttResp struct {
 	timeUnix int64
 	command  string
 	m        map[string]any
+	qos      any
 }
 
 type MqttRespOptionType struct {
@@ -179,6 +181,7 @@ func CreateMqttResp(client *Client) *MqttResp {
 		msg:      MqttRespOption.SuccessMsg,
 		timeUnix: gtime.Now().UnixMilli(),
 		m:        make(map[string]any, 1),
+		qos:      nil,
 	}
 }
 
@@ -194,6 +197,11 @@ func (t *MqttResp) SetMsg(msg string) *MqttResp {
 
 func (t *MqttResp) SetData(data any) *MqttResp {
 	t.data = data
+	return t
+}
+
+func (t *MqttResp) SetQos(qos byte) *MqttResp {
+	t.qos = qos
 	return t
 }
 
@@ -223,8 +231,12 @@ func (t *MqttResp) Resp(topic, command string, advanced ...func(data map[string]
 	for _, fn := range advanced {
 		t.m = fn(t.m)
 	}
+	qosOptions := make([]byte, 0)
+	if t.qos != nil {
+		qosOptions = append(qosOptions, gconv.Byte(qosOptions))
+	}
 	// 发送
-	if err := t.client.SendMsg(t.m, topic); err != nil {
+	if err := t.client.SendMsg(t.m, topic, qosOptions...); err != nil {
 		g.Log().Error(gctx.New(), "推送 MQTT 消息失败", err)
 	}
 }
